@@ -1,0 +1,6 @@
+{
+  "name": "SyncVault Cloud — Distributed Block Storage & Zero-Knowledge Synchronization",
+  "description": "Enterprise distributed cloud storage, content-addressable delta synchronization, and zero-knowledge encrypted backup infrastructure forsync-vault-cloud.online.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
