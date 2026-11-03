@@ -88,7 +88,7 @@ restic backup /var/lib/postgresql/data --tag "automated-hourly" --compression ma
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 06</span>
+          <span>Документация разработчика</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Руководства для инженеров и администраторов</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -138,7 +138,7 @@ restic backup /var/lib/postgresql/data --tag "automated-hourly" --compression ma
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <label htmlFor="doc-vault-name" className="block text-xs font-medium text-slate-700 mb-1.5">
-              Идентификатор целевого хранилища (Vault ID)
+              Идентификатор целевого хранилища (Vault ID / Bucket)
             </label>
             <input
               id="doc-vault-name"
@@ -277,7 +277,7 @@ export const ApiReferencePage: React.FC = () => {
     <div className="space-y-12">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 07</span>
+          <span>Справочник протокола</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Плоскость управления HTTP/2 и HTTP/3 QUIC</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -420,7 +420,7 @@ export const ClientsPage: React.FC = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 08</span>
+          <span>Репозиторий пакетов</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Воспроизводимые сборки (Reproducible Builds)</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -573,7 +573,7 @@ export const EnterprisePage: React.FC<PageNavigationProps> = ({ onOpenProvisionM
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 09</span>
+          <span>Enterprise-инфраструктура</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Корпоративное управление</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -704,9 +704,9 @@ export const RegionsPage: React.FC = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 10</span>
+          <span>Карта сети и дата-центров</span>
           <span aria-hidden="true" className="mx-2">·</span>
-          <span>Суверенные кластеры хранения</span>
+          <span>Автономная система AS214908</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Жёсткая географическая фиксация данных</span>
         </div>

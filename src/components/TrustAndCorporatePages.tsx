@@ -66,7 +66,7 @@ export const CompliancePage: React.FC = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 11</span>
+          <span className="font-mono text-blue-700 font-semibold">Аудит и сертификация</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Регуляторные гарантии и надзор</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -171,7 +171,7 @@ export const ChangelogPage: React.FC = () => {
     <div className="space-y-12">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 12</span>
+          <span className="font-mono text-blue-700 font-semibold">Журнал релизов</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Поток инженерных обновлений</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -263,7 +263,7 @@ export const AboutPage: React.FC = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 13</span>
+          <span className="font-mono text-blue-700 font-semibold">Корпоративный профиль</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Штаб-квартира в Цюрихе (UID: CHE-419.820.114)</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -455,7 +455,7 @@ export const LegalPage: React.FC = () => {
     <div className="space-y-12">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 14</span>
+          <span className="font-mono text-blue-700 font-semibold">Юридический контур и SLA</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Нормативные договоры и гарантии SLA</span>
           <span aria-hidden="true" className="mx-2">·</span>

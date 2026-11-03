@@ -3,8 +3,13 @@ import {
   ArrowRight,
   Check,
   Copy,
+  Database,
+  HardDrive,
+  Lock,
+  Server,
+  Shield,
 } from 'lucide-react';
-import { PageId } from '../data/siteCatalog';
+import { PageId, STORAGE_REGIONS } from '../data/siteCatalog';
 import {
   BillingCycle,
   RedundancyTier,
@@ -17,11 +22,13 @@ import { MerkleArchitectureSchematic, SwissFacilitySchematic } from './VisualSch
 interface PageNavigationProps {
   onNavigate: (page: PageId) => void;
   onOpenProvisionModal: (presetTb?: number) => void;
+  onOpenWebConsole?: () => void;
 }
 
 export const HomePage: React.FC<PageNavigationProps> = ({
   onNavigate,
   onOpenProvisionModal,
+  onOpenWebConsole,
 }) => {
   const [activeChunkIndex, setActiveChunkIndex] = useState(1);
   const [samplePayload, setSamplePayload] = useState(
@@ -60,27 +67,27 @@ export const HomePage: React.FC<PageNavigationProps> = ({
   return (
     <div className="space-y-20">
       {/* Hero Section: 2-Column Split with items-stretch */}
-      <section className="pt-6">
+      <section className="pt-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          <div className="lg:col-span-6 flex flex-col justify-between bg-white border border-slate-200 rounded-xl p-8 lg:p-10">
+          <div className="lg:col-span-6 flex flex-col justify-between bg-white border border-slate-200/90 rounded-xl p-8 lg:p-10 shadow-xs">
             <div>
               <div className="text-xs font-medium text-slate-500 mb-4">
-                <span>Юрисдикция Швейцарии (FADP)</span>
+                <span>Швейцарская юрисдикция (FADP)</span>
                 <span aria-hidden="true" className="mx-2">·</span>
-                <span>Zero-Knowledge XChaCha20</span>
+                <span>Шифрование XChaCha20</span>
                 <span aria-hidden="true" className="mx-2">·</span>
-                <span>0 ₽ / $0 за исходящий трафик</span>
+                <span>Совместимость с S3 и POSIX FUSE</span>
               </div>
               <h1
                 className="font-display font-bold text-slate-900 tracking-tight leading-[1.12]"
-                style={{ fontSize: 'clamp(2.1rem, 3.4vw, 3.15rem)', textWrap: 'balance' }}
+                style={{ fontSize: 'clamp(2.1rem, 3.3vw, 3.1rem)', textWrap: 'balance' }}
               >
-                Распределённое блочное хранилище и дельта-синхронизация.
+                Облачное блочное хранилище и защищённая дельта-синхронизация.
               </h1>
               <p className="mt-5 text-base text-slate-600 leading-relaxed max-w-xl">
-                Платформа SyncVault Cloud (<span className="font-mono text-slate-800">sync-vault-cloud.online</span>)
-                разбивает, дедуплицирует и шифрует корпоративные массивы данных на стороне клиента перед
-                распределением шардов чётности Рида-Соломона по суверенным европейским и мировым узлам хранения.
+                Инфраструктура <span className="font-mono text-slate-900 font-medium">sync-vault-cloud.online</span>{' '}
+                предоставляет отказоустойчивые объектные бакеты S3 и высокоскоростную репликацию блочных томов по
+                протоколу HTTP/3 QUIC с шифрованием на стороне клиента и нулевой платой за исходящий трафик.
               </p>
             </div>
 
@@ -91,27 +98,32 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                   onClick={() => onOpenProvisionModal(25)}
                   className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
                 >
-                  <span>Развернуть хранилище</span>
+                  <span>Создать бакет хранилища</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('architecture')}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  Архитектура Merkle-DAG
-                </button>
+                {onOpenWebConsole && (
+                  <button
+                    type="button"
+                    onClick={onOpenWebConsole}
+                    className="px-4 py-2.5 text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    Открыть веб-консоль S3
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => onNavigate('documentation')}
-                  className="px-3.5 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  className="px-3 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 >
-                  Документация CLI и S3 →
+                  Документация CLI →
                 </button>
               </div>
-              <p className="mt-3 text-xs text-slate-500">
-                Нативные клиенты для Linux, macOS, Windows Server, Kubernetes CSI и S3-совместимых систем бэкапа.
-              </p>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs font-mono text-slate-500">
+                <span>S3: s3.ch-zrh-1.sync-vault-cloud.online</span>
+                <span>AS214908 (SyncVault-CH)</span>
+                <span>SLA 99.99%</span>
+              </div>
             </div>
           </div>
 
@@ -126,33 +138,79 @@ export const HomePage: React.FC<PageNavigationProps> = ({
         {/* Full-Width 4-Column KPI Row Below Hero Split */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Скорость локальной нарезки FastCDC</p>
+            <p className="text-xs text-slate-500">Скорость потоковой дедупликации FastCDC</p>
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
               4.3 ГБ/с
             </p>
-            <p className="text-xs text-slate-500 mt-1">Ускорение SIMD AVX-512 и Apple Neon</p>
+            <p className="text-xs text-slate-500 mt-1">Аппаратное ускорение AVX-512 и Apple Neon</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Расчётная сохранность блоков в год</p>
+            <p className="text-xs text-slate-500">Расчётная надёжность хранения объектов</p>
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
               99.999999999%
             </p>
-            <p className="text-xs text-slate-500 mt-1">Схема 12+4 Reed-Solomon + сверка раз в 14 дней</p>
+            <p className="text-xs text-slate-500 mt-1">Избыточность 12+4 Reed-Solomon в 4 зонах ЦОД</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Задержка первого байта чтения (p99 TTFB)</p>
+            <p className="text-xs text-slate-500">Задержка чтения блока (p99 TTFB)</p>
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
               6.4 мс
             </p>
-            <p className="text-xs text-slate-500 mt-1">Кластер Цюрих CH-ZRH-1 по сети 400GbE</p>
+            <p className="text-xs text-slate-500 mt-1">Прямой пиринг SwissIX / DE-CIX 400GbE</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Плата за исходящий трафик (Egress) и API</p>
+            <p className="text-xs text-slate-500">Тарификация исходящего трафика и запросов</p>
             <p className="text-2xl font-display font-bold text-blue-700 mt-1 font-mono tabular-nums">
               $0.00 / ТБ
             </p>
-            <p className="text-xs text-slate-500 mt-1">Безлимитная репликация и чтение через шлюз S3</p>
+            <p className="text-xs text-slate-500 mt-1">Полный Zero Egress для S3, Rclone и Veeam</p>
           </div>
+        </div>
+      </section>
+
+      {/* Production Gateways & Active Cluster Matrix */}
+      <section className="bg-white border border-slate-200 rounded-xl p-7">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <p className="text-xs font-medium text-blue-700">Магистральные шлюзы доступа</p>
+            <h2 className="text-xl font-display font-bold text-slate-900 mt-0.5">
+              Промышленные точки подключения S3 API и QUIC-синхронизации
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate('regions')}
+            className="text-xs font-semibold text-blue-700 hover:text-blue-800 whitespace-nowrap shrink-0 cursor-pointer"
+          >
+            Все 6 дата-центров и пиринг →
+          </button>
+        </div>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-500">
+                <th className="py-2.5 pr-4 font-semibold">Кластер</th>
+                <th className="py-2.5 px-4 font-semibold">Локация ЦОД</th>
+                <th className="py-2.5 px-4 font-semibold">Эндпоинт S3 / QUIC</th>
+                <th className="py-2.5 px-4 font-semibold">Схема хранения</th>
+                <th className="py-2.5 pl-4 font-semibold text-right">Средний RTT (Европа)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-mono">
+              {STORAGE_REGIONS.slice(0, 4).map((r) => (
+                <tr key={r.code} className="hover:bg-slate-50">
+                  <td className="py-3 pr-4 font-semibold text-blue-700">{r.code}</td>
+                  <td className="py-3 px-4 font-sans font-medium text-slate-900">
+                    {r.city}, {r.country}
+                  </td>
+                  <td className="py-3 px-4 text-slate-700">{r.s3Endpoint}</td>
+                  <td className="py-3 px-4 font-sans text-slate-600">{r.erasureDefault}</td>
+                  <td className="py-3 pl-4 text-right tabular-nums text-slate-900">{r.latencyEuMs} мс</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -160,9 +218,9 @@ export const HomePage: React.FC<PageNavigationProps> = ({
       <section className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
-            <p className="text-xs font-medium text-blue-700">Ключевые технологии платформы</p>
+            <p className="text-xs font-medium text-blue-700">Технологический стек</p>
             <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 mt-1">
-              Детерминированная синхронизация на петабайтном масштабе
+              Архитектура для высоконагруженных систем резервного копирования и репликации
             </h2>
           </div>
           <button
@@ -170,7 +228,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
             onClick={() => onNavigate('sync-engine')}
             className="text-sm font-medium text-blue-700 hover:text-blue-800 inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
           >
-            <span>Протокол скользящего хеша</span>
+            <span>Спецификация протокола дельта-обмена</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -179,35 +237,35 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-7 flex flex-col justify-between">
             <div>
               <p className="text-xs text-slate-500 font-mono">
-                Модуль 01 · Дедупликация с плавающей границей
+                Контентно-определяемая нарезка блоков
               </p>
               <h3 className="text-xl font-display font-semibold text-slate-900 mt-2">
-                01. Контентно-определяемая нарезка блоков (FastCDC)
+                01. Глобальная дедупликация со скользящим окном FastCDC
               </h3>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                Классические объектные облака повторно выгружают многогигабайтные архивы при смещении одного байта
-                в заголовке. SyncVault вычисляет скользящие Gear-хеши в окне от 64 КБ до 4 МБ, изолируя только
-                реально изменённые диапазоны байтов и глобально дедуплицируя идентичные блоки между всеми снапшотами
-                и ветками вашего тенанта.
+                Обычные объектные хранилища перезаписывают весь архивный файл целиком при изменении нескольких
+                килобайт внутри образа виртуальной машины или дампа базы данных. Демон SyncVault разбивает поток
+                скользящим Gear-хешем на блоки от 64 КБ до 4 МБ и передаёт по сети только уникальные изменённые
+                сегменты.
               </p>
             </div>
             <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div>
-                <span className="text-slate-500 block">Хеш-примитив</span>
+                <span className="text-slate-500 block">Криптографический индекс</span>
                 <span className="font-mono font-semibold text-slate-900 mt-0.5 block">
                   Дерево Меркла BLAKE3-256
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block">Конвейер сжатия</span>
+                <span className="text-slate-500 block">Потоковое сжатие</span>
                 <span className="font-mono font-semibold text-slate-900 mt-0.5 block">
                   Zstandard (zstd уровень 6)
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block">Экономия WAN-трафика</span>
+                <span className="text-slate-500 block">Снижение сетевого трафика</span>
                 <span className="font-mono font-semibold text-blue-700 mt-0.5 block tabular-nums">
-                  84.2% – 96.8% экономии
+                  До 94% на инкрементах
                 </span>
               </div>
             </div>
@@ -216,14 +274,14 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <div className="bg-white border border-slate-200 rounded-xl p-7 flex flex-col justify-between">
             <div>
               <p className="text-xs text-slate-500 font-mono">
-                Модуль 02 · Клиентское владение ключами
+                Клиентское управление ключами
               </p>
               <h3 className="text-xl font-semibold font-display text-slate-900 mt-2">
-                02. Криптография с нулевым разглашением
+                02. Шифрование Zero-Knowledge до отправки в сеть
               </h3>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                Каждый блок данных, имя файла и структура каталогов шифруются алгоритмом XChaCha20-Poly1305 в
-                оперативной памяти клиента до отправки в сеть. Узлы хранения оперируют исключительно шифротекстом.
+                Содержимое файлов, имена объектов и структура директорий шифруются алгоритмом XChaCha20-Poly1305
+                на процессоре клиента. На серверах хранения размещаются исключительно обезличенные шарды.
               </p>
             </div>
             <div className="mt-6 pt-5 border-t border-slate-100">
@@ -232,7 +290,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 onClick={() => onNavigate('security')}
                 className="text-xs font-semibold text-blue-700 hover:text-blue-800 inline-flex items-center gap-1 cursor-pointer"
               >
-                <span>Спецификация криптографии</span>
+                <span>Схема иерархии ключей</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -241,14 +299,14 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <div className="bg-white border border-slate-200 rounded-xl p-7 flex flex-col justify-between">
             <div>
               <p className="text-xs text-slate-500 font-mono">
-                Модуль 03 · Протокольная совместимость
+                Стандартные протоколы интеграции
               </p>
               <h3 className="text-xl font-display font-semibold text-slate-900 mt-2">
-                03. Шлюз S3, монтирование POSIX FUSE и Kubernetes CSI
+                03. Нативный шлюз S3, монтирование FUSE и Kubernetes CSI
               </h3>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                Монтируйте удалённые хранилища как локальные файловые системы с подгрузкой блоков по требованию
-                или подключайте существующие конвейеры AWS S3 SDK, Restic, Borg и Veeam напрямую к региональным шлюзам.
+                Подключайте хранилище как локальный диск POSIX в Linux/macOS/Windows или используйте готовые
+                коннекторы AWS S3 SDK, Rclone, Restic, BorgBackup и Veeam Backup &amp; Replication.
               </p>
             </div>
             <div className="mt-6 pt-5 border-t border-slate-100">
@@ -257,7 +315,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 onClick={() => onNavigate('clients')}
                 className="text-xs font-semibold text-blue-700 hover:text-blue-800 inline-flex items-center gap-1 cursor-pointer"
               >
-                <span>Скачать клиентские сборки</span>
+                <span>Дистрибутивы клиентов</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -266,25 +324,25 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-7 flex flex-col justify-between">
             <div>
               <p className="text-xs text-slate-500 font-mono">
-                Модуль 04 · Неизменяемость и защита от программ-вымогателей
+                Неизменяемые архивы
               </p>
               <h3 className="text-xl font-display font-semibold text-slate-900 mt-2">
-                04. Аппаратная блокировка WORM Object Lock и мгновенный откат снапшотов
+                04. Аппаратная фиксация WORM Object Lock и защита от шифровальщиков
               </h3>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                Обеспечьте строгое соблюдение регуляторных сроков хранения по требованиям SEC 17a-4(f), FINMA и GDPR.
-                Даже в случае компрометации учётных записей администратора аппаратные политики WORM блокируют
-                модификацию или досрочное удаление зафиксированных корней дерева Меркла.
+                Поддержка стандартов SEC 17a-4(f), FINMA и GDPR. Фиксация корневого хеша Меркла в режиме Compliance
+                гарантирует невозможность перезаписи или удаления резервных копий до истечения заданного срока
+                даже при компрометации административных ключей.
               </p>
             </div>
             <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
-              <span>Режимы фиксации: Governance Lock · Compliance Lock · Legal Hold</span>
+              <span>Поддерживаемые политики: Governance · Compliance · Legal Hold</span>
               <button
                 type="button"
                 onClick={() => onNavigate('compliance')}
                 className="font-semibold text-blue-700 hover:text-blue-800 cursor-pointer"
               >
-                Сертификаты и аудит →
+                Аудиторские заключения ISO / SOC 2 →
               </button>
             </div>
           </div>
@@ -294,9 +352,9 @@ export const HomePage: React.FC<PageNavigationProps> = ({
       {/* Proof of Impact / Case Studies */}
       <section className="space-y-6">
         <div className="border-b border-slate-200 pb-4">
-          <p className="text-xs font-medium text-slate-500">Подтверждённые промышленные внедрения</p>
+          <p className="text-xs font-medium text-slate-500">Эксплуатация под нагрузкой</p>
           <h2 className="text-2xl font-display font-bold text-slate-900 mt-1">
-            Измеримые инженерные результаты в регулируемых отраслях
+            Показатели производительности в корпоративных инфраструктурах
           </h2>
         </div>
 
@@ -304,61 +362,61 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <article className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
             <div>
               <div className="text-xs text-slate-500">
-                <span>Геномика и биотех</span>
+                <span>Биоинформатика и геномика</span>
                 <span aria-hidden="true" className="mx-1.5">·</span>
                 <span>Базель, Швейцария</span>
               </div>
               <p className="text-2xl font-display font-bold text-blue-700 mt-3 font-mono tabular-nums">
-                -78.4% затрат на трафик за 90 дней
+                -78.4% расходов на внешний трафик
               </p>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                «До перехода на SyncVault синхронизация 1.4 ПБ геномных массивов BAM/CRAM между тремя европейскими
-                лабораториями обходилась в 41 000 CHF ежемесячно только за счёт оплаты исходящего трафика.
-                Переход на FastCDC и кластер CH-ZRH-1 сократил время репликации с 4 часов до 11 минут».
+                «Репликация 1.4 ПБ геномных секвенций BAM/CRAM между тремя исследовательскими площадками в Европе
+                ранее требовала до 41 000 CHF в месяц на оплату исходящего трафика. Перевод конвейера на FastCDC и
+                кластер CH-ZRH-1 сократил окно синхронизации с 4 часов до 11 минут».
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs">
               <p className="font-semibold text-slate-900">Д-р Лукас Фойгт</p>
-              <p className="text-slate-500">Руководитель научных вычислений, RheinBio Genomics AG</p>
+              <p className="text-slate-500">Руководитель вычислительной инфраструктуры, RheinBio Genomics AG</p>
             </div>
           </article>
 
           <article className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
             <div>
               <div className="text-xs text-slate-500">
-                <span>Алгоритмические финансы</span>
+                <span>Количественный трейдинг</span>
                 <span aria-hidden="true" className="mx-1.5">·</span>
                 <span>Франкфурт и Цюрих</span>
               </div>
               <p className="text-2xl font-display font-bold text-blue-700 mt-3 font-mono tabular-nums">
-                В 3.8 раза быстрее чтение истории тиков
+                В 3.8 раза быстрее гидратация Parquet
               </p>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                «Наш исследовательский кластер подгружает 680 ТБ партиций биржевого стакана L3 в формате Parquet
-                через драйвер SyncVault Kubernetes CSI. Контентно-адресуемое кэширование сократило холодный старт
-                бэктестов с 27 до 7.1 минуты при полном соблюдении требований FINMA».
+                «Кластер аналитики монтирует 680 ТБ исторических биржевых данных L3 через драйвер SyncVault
+                Kubernetes CSI. Локальное NVMe-кэширование дедуплицированных блоков сократило запуск расчётных
+                задач с 27 до 7.1 минуты».
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs">
               <p className="font-semibold text-slate-900">Мартина Линдквист</p>
-              <p className="text-slate-500">Вице-президент по платформенной инфраструктуре, Nordstein Capital Partners</p>
+              <p className="text-slate-500">Директор по инфраструктуре, Nordstein Capital Partners</p>
             </div>
           </article>
 
           <article className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
             <div>
               <div className="text-xs text-slate-500">
-                <span>Медиа и постпродакшн</span>
+                <span>Производство медиа и VFX</span>
                 <span aria-hidden="true" className="mx-1.5">·</span>
                 <span>Мюнхен и Стокгольм</span>
               </div>
               <p className="text-2xl font-display font-bold text-blue-700 mt-3 font-mono tabular-nums">
-                91.6% экономии канала на 8K-таймлайнах
+                91.6% экономии полосы пропускания
               </p>
               <p className="text-sm text-slate-600 mt-3 leading-relaxed">
-                «Когда колористы вносят правки в 400-гигабайтную секвенцию OpenEXR, демон FUSE передаёт по QUIC
-                только изменённые блоки кадров. Удалённые студии работают с ревизиями проекта синхронно без ночных
-                ожиданий полной перезаливки архивов».
+                «При внесении правок цветокоррекции в 400-гигабайтные мастер-исходники OpenEXR демон FUSE передаёт
+                по протоколу QUIC только изменённые блоки кадров. Команды в разных странах работают с общим
+                хранилищем без ночных очередей репликации».
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs">
@@ -373,13 +431,13 @@ export const HomePage: React.FC<PageNavigationProps> = ({
       <section className="bg-white border border-slate-200 rounded-xl p-7 lg:p-9">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-5">
-            <p className="text-xs font-medium text-blue-700">Интерактивная клиентская проверка</p>
+            <p className="text-xs font-medium text-blue-700">Проверка алгоритма хеширования</p>
             <h2 className="text-xl font-display font-bold text-slate-900 mt-1">
-              Тестирование нарезки блоков и расчёта манифеста Меркла
+              Калькулятор корневого дайджеста Меркла BLAKE3-256
             </h2>
             <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-              Измените тестовый буфер ниже, чтобы увидеть, как клиентский демон SyncVault вычисляет
-              детерминированный контентно-адресуемый дайджест до шифрования XChaCha20-Poly1305.
+              Измените содержимое тестового блока ниже, чтобы проверить, как клиентский демон формирует
+              контентно-адресуемый идентификатор чанка перед шифрованием XChaCha20-Poly1305.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
@@ -391,7 +449,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 }
                 className="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
               >
-                Геномный SQL-снапшот
+                SQL-снапшот БД
               </button>
               <button
                 type="button"
@@ -402,7 +460,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 }
                 className="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
               >
-                JSON-политика WORM
+                Политика хранения WORM
               </button>
               <button
                 type="button"
@@ -413,7 +471,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 }
                 className="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
               >
-                Конвейер Rclone CLI
+                Задача репликации Rclone
               </button>
             </div>
           </div>
@@ -424,7 +482,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
                 htmlFor="sandbox-payload-input"
                 className="block text-xs font-medium text-slate-700 mb-1.5"
               >
-                Входной буфер блока (обрабатывается локально в памяти браузера)
+                Входной буфер блока данных (вычисление в памяти клиента)
               </label>
               <textarea
                 id="sandbox-payload-input"
@@ -452,60 +510,11 @@ export const HomePage: React.FC<PageNavigationProps> = ({
               </div>
               <div className="grid grid-cols-3 gap-2 pt-2 text-[11px] text-slate-400 tabular-nums">
                 <div>Размер буфера: {samplePayload.length} байт</div>
-                <div>Тег MAC: +16 байт (Poly1305)</div>
+                <div>Код MAC: +16 байт (Poly1305)</div>
                 <div>Кольцо: ch-zrh-1 (12+4)</div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Complete 14-Page Site Directory Grid */}
-      <section className="space-y-5">
-        <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-          <div>
-            <p className="text-xs font-medium text-slate-500">Полный каталог разделов и технической документации</p>
-            <h2 className="text-xl font-display font-bold text-slate-900 mt-0.5">
-              Все 14 страниц платформы sync-vault-cloud.online
-            </h2>
-          </div>
-          <span className="text-xs text-slate-500 font-mono tabular-nums">14 статических и интерактивных разделов</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { id: 'architecture' as PageId, num: '02', title: 'Движок хранения и коды Рида-Соломона', desc: 'Дедупликация Merkle-DAG и интерактивный симулятор избыточности 12+4.' },
-            { id: 'sync-engine' as PageId, num: '03', title: 'Протокол дельта-синхронизации', desc: 'Скользящий хеш FastCDC, обнаружение пиров в LAN по QUIC и калькулятор канала.' },
-            { id: 'security' as PageId, num: '04', title: 'Криптография Zero-Knowledge', desc: 'XChaCha20-Poly1305, деривация Argon2id и постквантовые конверты ML-KEM-1024.' },
-            { id: 'pricing' as PageId, num: '05', title: 'Тарифы и калькулятор TCO', desc: 'Предсказуемая стоимость за ТБ без платы за исходящий трафик и сравнение с облаками.' },
-            { id: 'documentation' as PageId, num: '06', title: 'Техническая документация и CLI', desc: 'Инструкции для утилиты svctl, шлюза S3, Rclone, Restic и монтирования FUSE.' },
-            { id: 'api-reference' as PageId, num: '07', title: 'Справочник REST и gRPC API', desc: 'Интерактивный браузер схем запросов для манифестов, потоков блоков и WORM.' },
-            { id: 'clients' as PageId, num: '08', title: 'Клиенты для Desktop, серверов и CSI', desc: 'Подписанные дистрибутивы для Linux, macOS, Windows и K8s со сверкой SHA-256.' },
-            { id: 'enterprise' as PageId, num: '09', title: 'Корпоративное управление и гибрид', desc: 'Интеграция SAML 2.0 SSO, SCIM 2.0 и изолированные on-premise узлы хранения.' },
-            { id: 'regions' as PageId, num: '10', title: 'Глобальные регионы и суверенитет', desc: 'Спецификации дата-центров в Цюрихе, Франкфурте, Стокгольме, Рейкьявике, Токио и США.' },
-            { id: 'compliance' as PageId, num: '11', title: 'Комплаенс и аудит безопасности', desc: 'Сертификаты ISO 27001, SOC 2 Type II, Swiss FADP, GDPR ст. 28 и HIPAA.' },
-            { id: 'changelog' as PageId, num: '12', title: 'История релизов платформы', desc: 'Инженерный журнал обновлений ядра хранилища и клиентов с v4.2.1 по v4.6.2.' },
-            { id: 'about' as PageId, num: '13', title: 'О компании SyncVault Cloud AG', desc: 'Штаб-квартира в Цюрихе, собственная сеть AS214908 и форма заказа тенанта.' },
-            { id: 'legal' as PageId, num: '14', title: 'Условия, приватность, DPA и SLA 99.99%', desc: 'Нормативные соглашения, перечень субпроцессоров и калькулятор компенсаций SLA.' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className="text-left bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-600 rounded-xl p-5 transition-colors flex flex-col justify-between group cursor-pointer"
-            >
-              <div>
-                <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-                  <span>СТРАНИЦА {item.num}</span>
-                  <span className="text-blue-700 group-hover:translate-x-0.5 transition-transform">/{item.id} →</span>
-                </div>
-                <h3 className="text-base font-display font-semibold text-slate-900 mt-2 group-hover:text-blue-700 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{item.desc}</p>
-              </div>
-            </button>
-          ))}
         </div>
       </section>
     </div>
@@ -527,14 +536,14 @@ export const ArchitecturePage: React.FC<PageNavigationProps> = ({ onNavigate }) 
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 02</span>
-          <span aria-hidden="true" className="mx-2">·</span>
-          <span>Спецификация ядра хранения</span>
+          <span>Архитектура ядра хранения</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Merkle-DAG + Коды Рида-Соломона</span>
+          <span aria-hidden="true" className="mx-2">·</span>
+          <span>Фабрика RDMA RoCEv2 400GbE</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 mt-2">
-          Контентно-адресуемый движок хранения и архитектура избыточности
+          Контентно-адресуемое ядро хранения и архитектура избыточности
         </h1>
         <p className="text-base text-slate-600 mt-3 max-w-3xl leading-relaxed">
           SyncVault Cloud заменяет монолитные объектные корзины неизменяемым направленным ациклическим графом
@@ -748,24 +757,47 @@ export const ArchitecturePage: React.FC<PageNavigationProps> = ({ onNavigate }) 
         </div>
       </section>
 
-      <SwissFacilitySchematic />
-
-      <div className="flex justify-between items-center bg-white border border-slate-200 rounded-xl p-6">
-        <div>
-          <p className="text-xs text-slate-500">Следующий раздел архитектуры</p>
-          <p className="text-base font-display font-semibold text-slate-900">
-            Страница 03: Протокол блочной дельта-синхронизации со скользящим хешем
-          </p>
+      {/* Hardware Node Specification Table */}
+      <section className="bg-white border border-slate-200 rounded-xl p-7">
+        <h2 className="text-xl font-display font-bold text-slate-900">
+          Спецификация серверных узлов хранения SyncVault Gen-5 (Цюрих и Франкфурт)
+        </h2>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-500">
+                <th className="py-2.5 pr-4 font-semibold">Подсистема</th>
+                <th className="py-2.5 px-4 font-semibold">Аппаратная конфигурация</th>
+                <th className="py-2.5 pl-4 font-semibold">Назначение в кольце хранения</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              <tr>
+                <td className="py-3 pr-4 font-medium text-slate-900">Процессорный контур</td>
+                <td className="py-3 px-4 font-mono text-slate-700">2x AMD EPYC 9654 (192 ядра Zen 4, AVX-512)</td>
+                <td className="py-3 pl-4 text-slate-600">Аппаратное кодирование полос GF(2^8) и проверка BLAKE3</td>
+              </tr>
+              <tr>
+                <td className="py-3 pr-4 font-medium text-slate-900">Горячий слой метаданных</td>
+                <td className="py-3 px-4 font-mono text-slate-700">8x 15.36 TB Kioxia CM7-R Enterprise NVMe PCIe 5.0</td>
+                <td className="py-3 pl-4 text-slate-600">Индексы дерева Меркла, WAL-журнал и кэш мелких блоков</td>
+              </tr>
+              <tr>
+                <td className="py-3 pr-4 font-medium text-slate-900">Сетевая фабрика</td>
+                <td className="py-3 px-4 font-mono text-slate-700">2x NVIDIA ConnectX-7 400GbE (RDMA RoCEv2 + MACsec)</td>
+                <td className="py-3 pl-4 text-slate-600">Неблокируемый обмен шардами и внешние каналы QUIC / S3</td>
+              </tr>
+              <tr>
+                <td className="py-3 pr-4 font-medium text-slate-900">Аппаратный корень доверия</td>
+                <td className="py-3 px-4 font-mono text-slate-700">TPM 2.0 + Thales Luna Network HSM 7 (FIPS 140-3 L3)</td>
+                <td className="py-3 pl-4 text-slate-600">Аттестация загрузки ядра и подпись корневых снапшотов WORM</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <button
-          type="button"
-          onClick={() => onNavigate('sync-engine')}
-          className="px-4 py-2 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg inline-flex items-center gap-2 cursor-pointer"
-        >
-          <span>Перейти к дельта-синхронизации</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      </section>
+
+      <SwissFacilitySchematic />
     </div>
   );
 };
@@ -787,11 +819,11 @@ export const SyncEnginePage: React.FC<PageNavigationProps> = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 03</span>
+          <span>Сетевой протокол репликации</span>
           <span aria-hidden="true" className="mx-2">·</span>
-          <span>Протокол репликации</span>
+          <span>HTTP/3 QUIC (UDP 443)</span>
           <span aria-hidden="true" className="mx-2">·</span>
-          <span>Мультиплексированные потоки QUIC</span>
+          <span>Локальный пиринг LAN Relay</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 mt-2">
           Дельта-синхронизация со скользящим хешем и LAN-ретрансляция
@@ -1021,7 +1053,7 @@ export const SecurityPage: React.FC<PageNavigationProps> = () => {
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 04</span>
+          <span>Информационная безопасность</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Криптография с нулевым разглашением</span>
           <span aria-hidden="true" className="mx-2">·</span>
@@ -1147,7 +1179,7 @@ export const PricingPage: React.FC<PageNavigationProps> = ({ onOpenProvisionModa
     <div className="space-y-14">
       <header className="bg-white border border-slate-200 rounded-xl p-8">
         <div className="text-xs text-slate-500">
-          <span>Страница 05</span>
+          <span>Тарификация и биллинг</span>
           <span aria-hidden="true" className="mx-2">·</span>
           <span>Предсказуемая экономика хранения</span>
           <span aria-hidden="true" className="mx-2">·</span>

@@ -14,7 +14,7 @@ export type PageId =
   | 'about'
   | 'legal';
 
-export type PageCategory = 'Платформа' | 'Разработчикам' | 'Инфраструктура' | 'О компании';
+export type PageCategory = 'Платформа' | 'Разработчикам' | 'Инфраструктура' | 'Компания';
 
 export interface PageMeta {
   id: PageId;
@@ -31,142 +31,208 @@ export const SITE_PAGES: PageMeta[] = [
   {
     id: 'home',
     number: '01',
-    title: 'Распределённое блочное хранилище и Zero-Knowledge синхронизация',
-    shortTitle: 'Обзор',
+    title: 'Облачное блочное хранилище S3 и защищённая синхронизация данных',
+    shortTitle: 'Платформа',
     category: 'Платформа',
     path: '/',
-    summary: 'Корпоративное контентно-адресуемое хранилище и субсекундная дельта-репликация между суверенными европейскими и мировыми ЦОД.',
+    summary: 'Распределённое объектное и блочное хранилище с клиентским шифрованием, дедупликацией FastCDC и совместимостью с протоколом S3.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'architecture',
     number: '02',
-    title: 'Движок хранения Merkle-DAG и архитектура кодов Рида-Соломона',
+    title: 'Архитектура ядра хранения Merkle-DAG и кодирование Рида-Соломона',
     shortTitle: 'Архитектура',
     category: 'Платформа',
     path: '/architecture',
-    summary: 'Как SyncVault разделяет, хеширует, дедуплицирует и распределяет зашифрованные блоки по шардам чётности Reed-Solomon.',
+    summary: 'Техническое устройство конвейера нарезки блоков, глобальной дедупликации BLAKE3 и распределения шардов чётности по стойкам NVMe.',
     updatedAt: 'Октябрь 2026',
   },
   {
     id: 'sync-engine',
     number: '03',
-    title: 'Протокол блочной дельта-синхронизации со скользящим хешем',
+    title: 'Протокол блочной дельта-синхронизации поверх HTTP/3 QUIC',
     shortTitle: 'Дельта-синхронизация',
     category: 'Платформа',
     path: '/sync-engine',
-    summary: 'Разбиение на блоки переменной длины FastCDC, обнаружение локальных LAN-узлов и детерминированное разрешение конфликтов.',
+    summary: 'Синхронизация изменённых фрагментов файлов со скользящим хешем, локальный пиринг LAN Relay и бесконфликтное слияние версий.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'security',
     number: '04',
-    title: 'Криптографическая архитектура с нулевым разглашением (Zero-Knowledge)',
+    title: 'Криптографическая защита и архитектура Zero-Knowledge',
     shortTitle: 'Безопасность',
     category: 'Платформа',
     path: '/security',
-    summary: 'Клиентское аутентифицированное шифрование XChaCha20-Poly1305, деривация ключей Argon2id и аппаратные модули FIPS 140-3 Level 3.',
+    summary: 'Шифрование на стороне клиента XChaCha20-Poly1305, деривация ключей Argon2id и аппаратные криптомодули FIPS 140-3 Level 3.',
     updatedAt: 'Октябрь 2026',
   },
   {
     id: 'pricing',
     number: '05',
-    title: 'Прозрачные тарифы без платы за исходящий трафик (Zero Egress)',
+    title: 'Тарифы на хранение и калькулятор совокупной стоимости (TCO)',
     shortTitle: 'Тарифы',
     category: 'Платформа',
     path: '/pricing',
-    summary: 'Предсказуемое лицензирование за терабайт и рабочее место при нулевой стоимости входящего/исходящего трафика и API-запросов.',
+    summary: 'Фиксированная стоимость за терабайт без тарификации исходящего трафика (Zero Egress), входящих потоков и операций S3 API.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'documentation',
     number: '06',
-    title: 'Техническая документация и справочник CLI (svctl)',
+    title: 'Документация: утилита svctl, шлюз S3, Rclone и монтирование FUSE',
     shortTitle: 'Документация',
     category: 'Разработчикам',
     path: '/documentation',
-    summary: 'Руководства по настройке консольного клиента svctl, объектного шлюза S3, Rclone, Restic и монтирования POSIX FUSE.',
+    summary: 'Примеры конфигураций для подключения Linux/macOS/Windows серверов, бэкапов Restic, Borg, Veeam и объектного API S3.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'api-reference',
     number: '07',
-    title: 'Справочник REST и gRPC API синхронизации',
-    shortTitle: 'Справочник API',
+    title: 'Справочник REST и gRPC API управления хранилищем',
+    shortTitle: 'API',
     category: 'Разработчикам',
     path: '/api-reference',
-    summary: 'Программные эндпоинты для согласования манифестов чанков, потоковой передачи блоков, фиксации WORM-снапшотов и журнала аудита.',
+    summary: 'Спецификация эндпоинтов согласования манифестов, потоковой передачи блоков, фиксации WORM-снапшотов и выгрузки логов аудита.',
     updatedAt: 'Октябрь 2026',
   },
   {
     id: 'clients',
     number: '08',
-    title: 'Клиентские приложения для Desktop, серверов и Kubernetes CSI',
+    title: 'Дистрибутивы клиентов для Linux, macOS, Windows и Kubernetes',
     shortTitle: 'Загрузки',
     category: 'Разработчикам',
     path: '/clients',
-    summary: 'Подписанные сборки для Linux, macOS Universal, Windows Server, драйвера Kubernetes CSI, iOS и Android с проверкой SHA-256.',
+    summary: 'Официальные подписанные бинарные пакеты, консольный демон svctl, графический клиент и драйвер томов Kubernetes CSI.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'enterprise',
     number: '09',
-    title: 'Корпоративное управление флотом и гибридное облако',
-    shortTitle: 'Корпорациям',
+    title: 'Решения для бизнеса: SSO, аппаратные HSM и гибридные узлы',
+    shortTitle: 'Enterprise',
     category: 'Инфраструктура',
     path: '/enterprise',
-    summary: 'Единый вход SAML 2.0 / OIDC, синхронизация каталогов SCIM 2.0, ролевые политики доступа и изолированные on-premise узлы.',
+    summary: 'Федерация удостоверений SAML 2.0 / OIDC, синхронизация каталогов SCIM 2.0, внешние KMS и выделенные серверные стойки.',
     updatedAt: 'Сентябрь 2026',
   },
   {
     id: 'regions',
     number: '10',
-    title: 'Глобальные регионы хранения и суверенитет данных',
-    shortTitle: 'Регионы ЦОД',
+    title: 'Дата-центры, магистральная сеть AS214908 и локализация данных',
+    shortTitle: 'Дата-центры',
     category: 'Инфраструктура',
     path: '/regions',
-    summary: 'Географически изолированные кластеры в Цюрихе, Франкфурте, Стокгольме, Рейкьявике, Токио и Эшберне с жёсткой фиксацией юрисдикции.',
+    summary: 'Характеристики площадок Tier III+/IV в Цюрихе, Франкфурте, Стокгольме, Рейкьявике, Токио и Эшберне с точками обмена трафиком.',
     updatedAt: 'Октябрь 2026',
   },
   {
     id: 'compliance',
     number: '11',
-    title: 'Регуляторное соответствие и независимые аудиты безопасности',
-    shortTitle: 'Комплаенс и аудит',
+    title: 'Сертификация ISO 27001, SOC 2 Type II и регуляторный комплаенс',
+    shortTitle: 'Комплаенс',
     category: 'Инфраструктура',
     path: '/compliance',
-    summary: 'Сертификация ISO/IEC 27001:2022, аттестация SOC 2 Type II, соответствие Swiss FADP, EU GDPR (ст. 28), BSI C5 и HIPAA.',
+    summary: 'Отчёты независимых аудиторов TÜV Rheinland, Ernst & Young, KPMG и NCC Group по стандартам безопасности и защиты данных.',
     updatedAt: 'Октябрь 2026',
   },
   {
     id: 'changelog',
     number: '12',
-    title: 'История релизов платформы и журнал изменений протокола',
-    shortTitle: 'История версий',
+    title: 'Журнал релизов и обновлений ядра SyncVault Cloud',
+    shortTitle: 'Релизы',
     category: 'Разработчикам',
     path: '/changelog',
-    summary: 'Хронология инженерных обновлений ядра хранилища SyncVault, демона синхронизации, шлюза S3 и криптографических модулей.',
+    summary: 'Подробный список изменений в серверном ядре хранения, сетевом стеке QUIC, шлюзе S3 и клиентских приложениях.',
     updatedAt: 'Ноябрь 2026',
   },
   {
     id: 'about',
     number: '13',
-    title: 'О компании SyncVault Cloud AG и эксплуатации инфраструктуры',
+    title: 'О компании SyncVault Cloud AG, команда и реквизиты',
     shortTitle: 'О компании',
-    category: 'О компании',
+    category: 'Компания',
     path: '/about',
-    summary: 'Штаб-квартира в Цюрихе, собственное серверное оборудование и магистральная сеть AS214908 без зависимости от гиперскейлеров.',
+    summary: 'Швейцарский оператор облачной инфраструктуры хранения данных со штаб-квартирой в Цюрихе и собственной оптической сетью.',
     updatedAt: 'Сентябрь 2026',
   },
   {
     id: 'legal',
     number: '14',
-    title: 'Условия обслуживания, политика конфиденциальности, DPA и SLA 99.99%',
-    shortTitle: 'Правовые документы и SLA',
-    category: 'О компании',
+    title: 'Условия обслуживания (MSA), политика конфиденциальности и SLA 99.99%',
+    shortTitle: 'Право и SLA',
+    category: 'Компания',
     path: '/legal',
-    summary: 'Генеральное соглашение о подписке (MSA), дополнение об обработке данных (DPA) и финансовые гарантии доступности 99.99%.',
+    summary: 'Юридические договоры, соглашение об обработке данных (DPA) и финансовые гарантии бесперебойной работы сети.',
     updatedAt: 'Октябрь 2026',
+  },
+];
+
+export interface VaultBucketItem {
+  id: string;
+  name: string;
+  region: string;
+  filesCount: number;
+  sizeGb: number;
+  dedupSavedPercent: number;
+  wormLocked: boolean;
+  lastSync: string;
+  recentObjects: {
+    filename: string;
+    sizeMb: number;
+    chunks: number;
+    blake3Short: string;
+    modifiedAt: string;
+  }[];
+}
+
+export const INITIAL_VAULT_BUCKETS: VaultBucketItem[] = [
+  {
+    id: 'bkt-prod-pg',
+    name: 'prod-postgres-wal-archive',
+    region: 'ch-zrh-1',
+    filesCount: 48210,
+    sizeGb: 1420.5,
+    dedupSavedPercent: 64.2,
+    wormLocked: true,
+    lastSync: '14 сек назад',
+    recentObjects: [
+      { filename: 'wal_0000000100000A4F0000008B.zst', sizeMb: 64.0, chunks: 64, blake3Short: '9f86d0...0a08', modifiedAt: '16:48:12 UTC' },
+      { filename: 'basebackup_2026_11_03_full.tar.zst', sizeMb: 18420.4, chunks: 14190, blake3Short: '4b2277...bf8a', modifiedAt: '14:00:02 UTC' },
+      { filename: 'pg_control_manifest.json.enc', sizeMb: 1.2, chunks: 2, blake3Short: 'd4735e...1170', modifiedAt: '16:48:12 UTC' },
+    ],
+  },
+  {
+    id: 'bkt-k8s-pv',
+    name: 'k8s-csi-persistent-volumes',
+    region: 'de-fra-1',
+    filesCount: 19450,
+    sizeGb: 890.2,
+    dedupSavedPercent: 71.8,
+    wormLocked: false,
+    lastSync: '42 сек назад',
+    recentObjects: [
+      { filename: 'pvc-prometheus-tsdb-shard01.img', sizeMb: 4096.0, chunks: 3812, blake3Short: 'ef2d12...9931', modifiedAt: '16:47:30 UTC' },
+      { filename: 'pvc-grafana-state-v4.sqlite.zst', sizeMb: 128.5, chunks: 118, blake3Short: '8f4343...7aa4', modifiedAt: '16:40:19 UTC' },
+      { filename: 'csi-volume-snapshot-tree.dag', sizeMb: 8.4, chunks: 9, blake3Short: '2c26b4...e7ae', modifiedAt: '16:47:31 UTC' },
+    ],
+  },
+  {
+    id: 'bkt-corp-docs',
+    name: 'corp-engineering-repositories',
+    region: 'se-sto-1',
+    filesCount: 312800,
+    sizeGb: 3640.0,
+    dedupSavedPercent: 88.4,
+    wormLocked: true,
+    lastSync: '1 мин назад',
+    recentObjects: [
+      { filename: 'firmware-build-artifacts-v4.6.2.tar', sizeMb: 940.2, chunks: 712, blake3Short: '7d865e...7730', modifiedAt: '16:45:00 UTC' },
+      { filename: 'cad-assemblies-optics-rev19.step', sizeMb: 512.8, chunks: 488, blake3Short: '3a7bd3...4f1b', modifiedAt: '15:12:44 UTC' },
+      { filename: 'sbom-signed-attestation.sig', sizeMb: 0.4, chunks: 1, blake3Short: 'e3b0c4...b855', modifiedAt: '16:45:01 UTC' },
+    ],
   },
 ];
 
@@ -372,6 +438,7 @@ export interface StorageRegionSpec {
   erasureDefault: string;
   certifications: string;
   backboneCarriers: string;
+  s3Endpoint: string;
 }
 
 export const STORAGE_REGIONS: StorageRegionSpec[] = [
@@ -386,6 +453,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '12+4 Reed-Solomon (4 зоны доступности)',
     certifications: 'FINMA Circular 2023/1 · ISO 27001 · SOC 2 Type II',
     backboneCarriers: 'SwissIX, DE-CIX Direct, Telia, Init7 400G',
+    s3Endpoint: 's3.ch-zrh-1.sync-vault-cloud.online',
   },
   {
     code: 'de-fra-1',
@@ -398,6 +466,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '12+4 Reed-Solomon (3 зоны доступности)',
     certifications: 'BSI C5 Type 2 · ISO 27001 · ISO 27018',
     backboneCarriers: 'DE-CIX Frankfurt, NTT, Cogent, GTT 400G',
+    s3Endpoint: 's3.de-fra-1.sync-vault-cloud.online',
   },
   {
     code: 'se-sto-1',
@@ -410,6 +479,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '10+4 Reed-Solomon (3 зоны доступности)',
     certifications: 'ISO 27001 · SOC 2 Type II · ISO 14001',
     backboneCarriers: 'Netnod, Arelion, GlobalConnect 400G',
+    s3Endpoint: 's3.se-sto-1.sync-vault-cloud.online',
   },
   {
     code: 'is-rek-1',
@@ -422,6 +492,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '16+4 Reed-Solomon Глубокий архив',
     certifications: 'ISO 27001 · PCI-DSS 4.0 Physical',
     backboneCarriers: 'FARICE-1, DANICE, подводное кольцо IRIS',
+    s3Endpoint: 's3.is-rek-1.sync-vault-cloud.online',
   },
   {
     code: 'jp-tyo-1',
@@ -434,6 +505,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '12+4 Reed-Solomon (3 зоны доступности)',
     certifications: 'ISMAP · SOC 2 Type II · ISO 27001',
     backboneCarriers: 'JPIX, BBIX, IIJ, NTT Communications',
+    s3Endpoint: 's3.jp-tyo-1.sync-vault-cloud.online',
   },
   {
     code: 'us-iad-1',
@@ -446,6 +518,7 @@ export const STORAGE_REGIONS: StorageRegionSpec[] = [
     erasureDefault: '12+4 Reed-Solomon (3 зоны доступности)',
     certifications: 'HIPAA BAA · SOC 2 Type II · FedRAMP Moderate Ready',
     backboneCarriers: 'Equinix Ashburn IX, Lumen, Zayo 400G',
+    s3Endpoint: 's3.us-iad-1.sync-vault-cloud.online',
   },
 ];
 
