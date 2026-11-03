@@ -191,47 +191,47 @@ export interface VaultBucketItem {
 export const INITIAL_VAULT_BUCKETS: VaultBucketItem[] = [
   {
     id: 'bkt-prod-pg',
-    name: 'prod-postgres-wal-archive',
-    region: 'ch-zrh-1',
+    name: '1c-erp-postgres-wal-archive',
+    region: 'ru-mow-1',
     filesCount: 48210,
     sizeGb: 1420.5,
     dedupSavedPercent: 64.2,
     wormLocked: true,
     lastSync: '14 сек назад',
     recentObjects: [
-      { filename: 'wal_0000000100000A4F0000008B.zst', sizeMb: 64.0, chunks: 64, blake3Short: '9f86d0...0a08', modifiedAt: '16:48:12 UTC' },
-      { filename: 'basebackup_2026_11_03_full.tar.zst', sizeMb: 18420.4, chunks: 14190, blake3Short: '4b2277...bf8a', modifiedAt: '14:00:02 UTC' },
-      { filename: 'pg_control_manifest.json.enc', sizeMb: 1.2, chunks: 2, blake3Short: 'd4735e...1170', modifiedAt: '16:48:12 UTC' },
+      { filename: '1c_ut_prod_2026_11_03_pgdump.zst', sizeMb: 642.0, chunks: 512, blake3Short: '9f86d0...0a08', modifiedAt: '16:48:12 UTC' },
+      { filename: 'pg_wal_0000000100000A4F0000008B.zst', sizeMb: 64.0, chunks: 64, blake3Short: '4b2277...bf8a', modifiedAt: '16:48:09 UTC' },
+      { filename: 'basebackup_2026_11_03_full.tar.zst', sizeMb: 18420.4, chunks: 14190, blake3Short: 'd4735e...1170', modifiedAt: '14:00:02 UTC' },
+    ],
+  },
+  {
+    id: 'bkt-proxmox-pbs',
+    name: 'proxmox-pbs-vm-snapshots',
+    region: 'ch-zrh-1',
+    filesCount: 19450,
+    sizeGb: 2890.2,
+    dedupSavedPercent: 74.8,
+    wormLocked: true,
+    lastSync: '38 сек назад',
+    recentObjects: [
+      { filename: 'vm-104-1c-appserver-disk0.fidx', sizeMb: 4096.0, chunks: 3812, blake3Short: 'ef2d12...9931', modifiedAt: '16:47:30 UTC' },
+      { filename: 'vm-209-gitlab-registry-v4.didx', sizeMb: 1128.5, chunks: 918, blake3Short: '8f4343...7aa4', modifiedAt: '16:40:19 UTC' },
+      { filename: 'pbs-datastore-manifest.json.blob', sizeMb: 8.4, chunks: 9, blake3Short: '2c26b4...e7ae', modifiedAt: '16:47:31 UTC' },
     ],
   },
   {
     id: 'bkt-k8s-pv',
     name: 'k8s-csi-persistent-volumes',
     region: 'de-fra-1',
-    filesCount: 19450,
-    sizeGb: 890.2,
-    dedupSavedPercent: 71.8,
-    wormLocked: false,
-    lastSync: '42 сек назад',
-    recentObjects: [
-      { filename: 'pvc-prometheus-tsdb-shard01.img', sizeMb: 4096.0, chunks: 3812, blake3Short: 'ef2d12...9931', modifiedAt: '16:47:30 UTC' },
-      { filename: 'pvc-grafana-state-v4.sqlite.zst', sizeMb: 128.5, chunks: 118, blake3Short: '8f4343...7aa4', modifiedAt: '16:40:19 UTC' },
-      { filename: 'csi-volume-snapshot-tree.dag', sizeMb: 8.4, chunks: 9, blake3Short: '2c26b4...e7ae', modifiedAt: '16:47:31 UTC' },
-    ],
-  },
-  {
-    id: 'bkt-corp-docs',
-    name: 'corp-engineering-repositories',
-    region: 'se-sto-1',
     filesCount: 312800,
     sizeGb: 3640.0,
     dedupSavedPercent: 88.4,
-    wormLocked: true,
+    wormLocked: false,
     lastSync: '1 мин назад',
     recentObjects: [
-      { filename: 'firmware-build-artifacts-v4.6.2.tar', sizeMb: 940.2, chunks: 712, blake3Short: '7d865e...7730', modifiedAt: '16:45:00 UTC' },
-      { filename: 'cad-assemblies-optics-rev19.step', sizeMb: 512.8, chunks: 488, blake3Short: '3a7bd3...4f1b', modifiedAt: '15:12:44 UTC' },
-      { filename: 'sbom-signed-attestation.sig', sizeMb: 0.4, chunks: 1, blake3Short: 'e3b0c4...b855', modifiedAt: '16:45:01 UTC' },
+      { filename: 'pvc-prometheus-tsdb-shard01.img', sizeMb: 940.2, chunks: 712, blake3Short: '7d865e...7730', modifiedAt: '16:45:00 UTC' },
+      { filename: 'veeam-sobr-capacity-extent-04.vbk', sizeMb: 8512.8, chunks: 6488, blake3Short: '3a7bd3...4f1b', modifiedAt: '15:12:44 UTC' },
+      { filename: 'csi-volume-snapshot-tree.dag', sizeMb: 0.4, chunks: 1, blake3Short: 'e3b0c4...b855', modifiedAt: '16:45:01 UTC' },
     ],
   },
 ];
@@ -443,13 +443,26 @@ export interface StorageRegionSpec {
 
 export const STORAGE_REGIONS: StorageRegionSpec[] = [
   {
+    code: 'ru-mow-1',
+    city: 'Москва (Транзитный NVMe-шлюз)',
+    country: 'РФ / СНГ',
+    jurisdiction: 'ФЗ-152 (локальный контур кэширования) + георепликация в CH-ZRH-1 по TLS 1.3',
+    energySource: 'Два независимых ввода 2N + ДГУ (PUE 1.22)',
+    tierClassification: 'Узел приёма бэкапов и дельта-кэширования Tier III+',
+    latencyEuMs: 3,
+    erasureDefault: 'Локальный NVMe-буфер + синхронный мост в ch-zrh-1',
+    certifications: 'ISO 27001 · ФСТЭК/ФЗ-152 контур · TLS 1.3 ALPN h2',
+    backboneCarriers: 'MSK-IX, Ростелеком, МегаФон, Rascom 100G → Франкфурт/Цюрих',
+    s3Endpoint: 'portal.sync-vault-cloud.online',
+  },
+  {
     code: 'ch-zrh-1',
     city: 'Цюрих (Люпфиг)',
     country: 'Швейцария',
     jurisdiction: 'Федеральный закон Швейцарии о защите данных (FADP) · Вне юрисдикции EU/US Cloud Act',
     energySource: '100% альпийская гидроэнергетика (PUE 1.14)',
     tierClassification: 'Подземный бункерный ЦОД Tier IV',
-    latencyEuMs: 7,
+    latencyEuMs: 36,
     erasureDefault: '12+4 Reed-Solomon (4 зоны доступности)',
     certifications: 'FINMA Circular 2023/1 · ISO 27001 · SOC 2 Type II',
     backboneCarriers: 'SwissIX, DE-CIX Direct, Telia, Init7 400G',
@@ -592,3 +605,137 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     ],
   },
 ];
+
+export interface WorkloadIntegrationSpec {
+  id: string;
+  title: string;
+  subtitle: string;
+  protocolBadge: string;
+  description: string;
+  configSnippet: string;
+  typicalThroughput: string;
+}
+
+export const WORKLOAD_INTEGRATIONS: WorkloadIntegrationSpec[] = [
+  {
+    id: '1c-postgres',
+    title: '1С:Предприятие 8.3 и PostgreSQL / Postgres Pro',
+    subtitle: 'Непрерывная архивация WAL-сегментов и ночных выгрузок .dt / pg_dump',
+    protocolBadge: 'wal-g / pgBackRest · S3 TLS 1.3',
+    description:
+      'Прямая отправка инкрементальных журналов предзаписи (WAL) и полных дампов информационных баз 1С:ERP / ЗУП / Бухгалтерия через локальный шлюз portal.sync-vault-cloud.online с последующей дедупликацией и репликацией в защищённый контур.',
+    configSnippet: `WALG_S3_PREFIX="s3://1c-erp-postgres-wal-archive/cluster-prod"
+AWS_ENDPOINT="https://portal.sync-vault-cloud.online"
+WALG_COMPRESSION_METHOD="zstd"`,
+    typicalThroughput: 'Сжатие дампов 1С до 4.2x · RPO < 60 сек',
+  },
+  {
+    id: 'proxmox-vmware',
+    title: 'Proxmox Backup Server (PBS) и VMware vSphere',
+    subtitle: 'Блочная дедупликация образов виртуальных машин и контейнеров LXC',
+    protocolBadge: 'PBS Datastore S3 / FUSE · FastCDC',
+    description:
+      'Подключение SyncVault Cloud как удалённого хранилища Proxmox Backup Server или целевого репозитория CBT-снапшотов VMware. Передаются только изменившиеся блоки виртуальных дисков без повторной прокачки базовых ОС.',
+    configSnippet: `proxmox-backup-manager datastore create syncvault-s3 \\
+  --endpoint https://portal.sync-vault-cloud.online \\
+  --bucket proxmox-pbs-vm-snapshots`,
+    typicalThroughput: 'Экономия канала до 91% на ежедневных снапшотах ВМ',
+  },
+  {
+    id: 'veeam-sobr',
+    title: 'Veeam Backup & Replication v12 (S3 Object Lock)',
+    subtitle: 'Неизменяемый уровень Capacity Tier (Scale-Out Backup Repository)',
+    protocolBadge: 'S3 Compatible · WORM Compliance',
+    description:
+      'Полная поддержка спецификации Veeam Smart Object Storage API (SOSAPI) и аппаратной блокировки объектов S3 Object Lock. Защищает резервные копии инфраструктуры от удаления и программ-вымогателей.',
+    configSnippet: `Repository Type: Amazon S3 Compatible
+Service Point: https://s3.ch-zrh-1.sync-vault-cloud.online
+Immutability: Enabled (30 days WORM Compliance)`,
+    typicalThroughput: 'Потоковая выгрузка до 10 Гбит/с по множественным потокам TCP/TLS',
+  },
+  {
+    id: 'k8s-gitlab',
+    title: 'Kubernetes CSI, GitLab Registry и хранение логов ClickHouse',
+    subtitle: 'Хранение образов контейнеров, артефактов CI/CD и холодных партиций БД',
+    protocolBadge: 'S3 API v4 · Kubernetes CSI Driver',
+    description:
+      'Использование S3-совместимых бакетов для хранения артефактов сборки GitLab CI, реестра Docker-образов и выгрузки исторических партиций ClickHouse / OpenSearch без тарификации исходящего трафика.',
+    configSnippet: `gitlab_rails['object_store']['connection'] = {
+  'provider' => 'AWS',
+  'endpoint' => 'https://portal.sync-vault-cloud.online',
+  'path_style' => true
+}`,
+    typicalThroughput: '$0.00 за выгрузку образов на рабочие узлы кластера',
+  },
+];
+
+export interface SubsystemStatusNode {
+  id: string;
+  name: string;
+  endpoint: string;
+  role: string;
+  uptime90d: string;
+  currentLatency: string;
+  statusText: string;
+}
+
+export const INFRASTRUCTURE_STATUS_NODES: SubsystemStatusNode[] = [
+  {
+    id: 'node-ru-mow',
+    name: 'Транзитный шлюз приёма и кэширования (Москва, РФ)',
+    endpoint: 'portal.sync-vault-cloud.online:443',
+    role: 'Приём бэкапов 1С / PostgreSQL / Veeam + TLS 1.3 репликация',
+    uptime90d: '99.99%',
+    currentLatency: '3.2 мс (MSK-IX)',
+    statusText: 'Штатный режим (HTTP/2 · TLS 1.3)',
+  },
+  {
+    id: 'node-ch-zrh',
+    name: 'Магистральный кластер хранения (Цюрих, Швейцария)',
+    endpoint: 's3.ch-zrh-1.sync-vault-cloud.online:443',
+    role: 'Кольцо хранения 12+4 Reed-Solomon + WORM Object Lock',
+    uptime90d: '100.00%',
+    currentLatency: '36.4 мс (мост RU↔CH)',
+    statusText: 'Штатный режим (16/16 стоек активно)',
+  },
+  {
+    id: 'node-de-fra',
+    name: 'Европейский узел репликации (Франкфурт, Германия)',
+    endpoint: 's3.de-fra-1.sync-vault-cloud.online:443',
+    role: 'Гео-резервное зеркало метаданных и Kubernetes CSI',
+    uptime90d: '99.99%',
+    currentLatency: '31.8 мс (DE-CIX)',
+    statusText: 'Штатный режим (синхронизировано)',
+  },
+  {
+    id: 'node-iam-kms',
+    name: 'Сервер аутентификации IAM и контроля доступа HSM',
+    endpoint: 'sync-vault-cloud.online (mTLS / SAML 2.0)',
+    role: 'Проверка корпоративных сертификатов и выдача сессионных токенов S3',
+    uptime90d: '100.00%',
+    currentLatency: '4.1 мс',
+    statusText: 'Штатный режим (FIPS 140-3 L3)',
+  },
+];
+
+export const MAINTENANCE_LOG_ENTRIES = [
+  {
+    date: '01 ноября 2026 · 02:00–02:25 MSK',
+    node: 'portal.sync-vault-cloud.online ↔ s3.ch-zrh-1',
+    title: 'Плановое обновление профилей TCP BBR и ротация TLS 1.3 сессионных ключей на магистральном мосту',
+    result: 'Выполнено без прерывания активных потоков репликации бэкапов (0% потерь пакетов).',
+  },
+  {
+    date: '19 октября 2026 · 03:00–03:40 MSK',
+    node: 'ch-zrh-1 (Зал B · Стойка R08)',
+    title: 'Плановая замена двух накопителей Kioxia CM7 NVMe и фоновая проверка чётности Рида-Соломона',
+    result: 'Реконструкция полос завершена за 18 минут по сети RDMA RoCEv2, SLA 100% сохранён.',
+  },
+  {
+    date: '04 октября 2026 · 01:30–01:45 MSK',
+    node: 'portal.sync-vault-cloud.online (RU-MOW-1)',
+    title: 'Расширение буферного пула NVMe для приёма ночных выгрузок 1С:Предприятие и PostgreSQL WAL',
+    result: 'Ёмкость входного кэша увеличена на 64 ТБ, задержка записи снижена до 3.2 мс.',
+  },
+];
+

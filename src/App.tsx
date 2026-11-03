@@ -4,7 +4,20 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronDown, FolderLock, Grid, HardDrive, Plus, Terminal, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  FolderLock,
+  Grid,
+  HardDrive,
+  KeyRound,
+  Lock,
+  Plus,
+  ShieldAlert,
+  Terminal,
+  X,
+} from 'lucide-react';
 import {
   ArchitecturePage,
   HomePage,
@@ -33,7 +46,12 @@ import {
   STORAGE_REGIONS,
   VaultBucketItem,
 } from './data/siteCatalog';
-import { computeToySha256Hex, validateTrialRequest } from './utils/vaultLogic';
+import {
+  IamLoginAttemptResult,
+  computeToySha256Hex,
+  validateIamLoginAttempt,
+  validateTrialRequest,
+} from './utils/vaultLogic';
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageId>(() => {
@@ -45,13 +63,21 @@ export default function App() {
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
   const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
   const [isWebConsoleOpen, setIsWebConsoleOpen] = useState(false);
+  const [isIamLoginOpen, setIsIamLoginOpen] = useState(false);
+
+  // Corporate IAM Login Modal State
+  const [iamTenantOrEmail, setIamTenantOrEmail] = useState('');
+  const [iamPassword, setIamPassword] = useState('');
+  const [iamTotpCode, setIamTotpCode] = useState('');
+  const [iamClusterRegion, setIamClusterRegion] = useState('ru-mow-1');
+  const [iamResult, setIamResult] = useState<IamLoginAttemptResult | null>(null);
 
   // Interactive S3 Web Console state
   const [consoleBuckets, setConsoleBuckets] = useState<VaultBucketItem[]>(INITIAL_VAULT_BUCKETS);
   const [selectedConsoleBucketName, setSelectedConsoleBucketName] = useState<string>(
     INITIAL_VAULT_BUCKETS[0].name
   );
-  const [newObjectKey, setNewObjectKey] = useState('snapshots/2026-11-03/db-dump-encrypted.zst');
+  const [newObjectKey, setNewObjectKey] = useState('snapshots/2026-11-03/1c_erp_night_dump.zst');
   const [newObjectSizeMb, setNewObjectSizeMb] = useState(512);
   const [copiedCredentialNotice, setCopiedCredentialNotice] = useState<string | null>(null);
 
@@ -60,7 +86,7 @@ export default function App() {
   const [modalEmail, setModalEmail] = useState('');
   const [modalCompany, setModalCompany] = useState('');
   const [modalTb, setModalTb] = useState(25);
-  const [modalRegion, setModalRegion] = useState('ch-zrh-1');
+  const [modalRegion, setModalRegion] = useState('ru-mow-1');
   const [modalErrors, setModalErrors] = useState<Record<string, string>>({});
   const [modalProvisionedVault, setModalProvisionedVault] = useState<{
     vaultId: string;
@@ -108,6 +134,22 @@ export default function App() {
     setIsProvisionModalOpen(true);
   };
 
+  const handleOpenIamLoginModal = () => {
+    setIamResult(null);
+    setIsIamLoginOpen(true);
+  };
+
+  const handleIamLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = validateIamLoginAttempt({
+      tenantOrEmail: iamTenantOrEmail,
+      password: iamPassword,
+      totpCode: iamTotpCode,
+      clusterRegion: iamClusterRegion,
+    });
+    setIamResult(res);
+  };
+
   const handleUploadSimulatedSnapshot = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanKey = newObjectKey.trim() || `snapshots/backup-${Date.now()}.zst`;
@@ -130,7 +172,7 @@ export default function App() {
               sizeMb,
               chunks,
               blake3Short: digest,
-              modifiedAt: 'Только что (QUIC/TLS 1.3)',
+              modifiedAt: 'Только что (TLS 1.3)',
             },
             ...bucket.recentObjects,
           ],
@@ -163,9 +205,11 @@ export default function App() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '')
       .slice(0, 10);
+    const regionObj = STORAGE_REGIONS.find((r) => r.code === modalRegion);
+    const host = regionObj ? regionObj.s3Endpoint : `s3.${modalRegion}.sync-vault-cloud.online`;
     setModalProvisionedVault({
       vaultId: `vlt_${modalRegion.replace(/-/g, '_')}_${cleanOrg || 'corp'}_9042`,
-      endpoint: `https://s3.${modalRegion}.sync-vault-cloud.online`,
+      endpoint: `https://${host}`,
       accessKeyId: `sv_ak_live_${modalRegion.slice(0, 2)}_${cleanOrg.slice(0, 4) || 'org'}8841`,
     });
   };
@@ -280,7 +324,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Secondary Sub-Navigation Bar: Natural Single-Line B2B Cloud Bar + S3 Web Console Trigger */}
+      {/* Secondary Sub-Navigation Bar: Natural Single-Line B2B Cloud Bar + IAM Login & S3 Console */}
       <div className="bg-slate-100/90 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between gap-3 text-xs overflow-x-auto">
           <div className="flex items-center gap-1 py-0.5 shrink-0">
@@ -301,6 +345,15 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleOpenIamLoginModal}
+              className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-blue-700" />
+              <span>Вход в консоль</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsWebConsoleOpen(true)}
@@ -372,6 +425,7 @@ export default function App() {
             onNavigate={handleNavigate}
             onOpenProvisionModal={handleOpenProvisionModal}
             onOpenWebConsole={() => setIsWebConsoleOpen(true)}
+            onOpenIamLogin={handleOpenIamLoginModal}
           />
         )}
         {activePage === 'architecture' && (
@@ -443,13 +497,13 @@ export default function App() {
             <div className="lg:col-span-1">
               <p className="text-base font-display font-bold text-slate-900">SyncVault Cloud AG</p>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Суверенное распределённое блочное хранилище, дельта-синхронизация FastCDC и инфраструктура
-                резервного копирования с нулевым разглашением.
+                Корпоративное распределённое объектное хранилище S3, резервное копирование 1С / PostgreSQL / Proxmox
+                и георепликация данных.
               </p>
               <div className="text-xs font-mono text-slate-500 mt-3 space-y-0.5">
-                <div>Домен: sync-vault-cloud.online</div>
+                <div>Шлюз РФ: portal.sync-vault-cloud.online</div>
+                <div>Кластер ЕС: s3.ch-zrh-1.sync-vault-cloud.online</div>
                 <div>Автономная система: AS214908</div>
-                <div>Шлюз: s3.ch-zrh-1.sync-vault-cloud.online</div>
               </div>
             </div>
 
@@ -509,6 +563,149 @@ export default function App() {
         </div>
       </footer>
 
+      {/* Corporate IAM / S3 Console Login Modal */}
+      {isIamLoginOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="iam-login-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-4"
+        >
+          <div className="bg-white border border-slate-200 rounded-xl max-w-md w-full p-6 sm:p-7 shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-mono text-blue-700 font-semibold">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>SyncVault IAM · SAML 2.0 / mTLS</span>
+                </div>
+                <h2 id="iam-login-modal-title" className="text-lg font-display font-bold text-slate-900 mt-1">
+                  Вход в консоль управления хранилищем
+                </h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Закрыть окно входа в консоль"
+                onClick={() => setIsIamLoginOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleIamLoginSubmit} className="mt-5 space-y-4" noValidate>
+              <div>
+                <label htmlFor="iam-cluster-select" className="block text-xs font-medium text-slate-700 mb-1">
+                  Узел авторизации (Шлюз кластера)
+                </label>
+                <select
+                  id="iam-cluster-select"
+                  value={iamClusterRegion}
+                  onChange={(e) => setIamClusterRegion(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-mono text-slate-900"
+                >
+                  <option value="ru-mow-1">ru-mow-1 — portal.sync-vault-cloud.online (Москва)</option>
+                  <option value="ch-zrh-1">ch-zrh-1 — s3.ch-zrh-1.sync-vault-cloud.online (Цюрих)</option>
+                  <option value="de-fra-1">de-fra-1 — s3.de-fra-1.sync-vault-cloud.online (Франкфурт)</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="iam-tenant-input" className="block text-xs font-medium text-slate-700 mb-1">
+                  ID тенанта или корпоративный Email
+                </label>
+                <input
+                  id="iam-tenant-input"
+                  type="text"
+                  value={iamTenantOrEmail}
+                  onChange={(e) => setIamTenantOrEmail(e.target.value)}
+                  placeholder="vlt_ru_mow_corp9042 или admin@company.ru"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                />
+                {iamResult?.fieldErrors.tenantOrEmail && (
+                  <p className="text-xs text-red-600 mt-1">{iamResult.fieldErrors.tenantOrEmail}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div className="sm:col-span-7">
+                  <label htmlFor="iam-password-input" className="block text-xs font-medium text-slate-700 mb-1">
+                    Пароль учётной записи IAM
+                  </label>
+                  <input
+                    id="iam-password-input"
+                    type="password"
+                    value={iamPassword}
+                    onChange={(e) => setIamPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                  />
+                  {iamResult?.fieldErrors.password && (
+                    <p className="text-xs text-red-600 mt-1">{iamResult.fieldErrors.password}</p>
+                  )}
+                </div>
+
+                <div className="sm:col-span-5">
+                  <label htmlFor="iam-totp-input" className="block text-xs font-medium text-slate-700 mb-1">
+                    Код 2FA (TOTP)
+                  </label>
+                  <input
+                    id="iam-totp-input"
+                    type="text"
+                    maxLength={6}
+                    value={iamTotpCode}
+                    onChange={(e) => setIamTotpCode(e.target.value)}
+                    placeholder="000000"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-mono text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                  />
+                  {iamResult?.fieldErrors.totpCode && (
+                    <p className="text-xs text-red-600 mt-1">{iamResult.fieldErrors.totpCode}</p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 px-4 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              >
+                Выполнить вход по протоколу IAM
+              </button>
+            </form>
+
+            {iamResult?.authResponse && (
+              <div
+                role="alert"
+                className="mt-4 bg-red-950 text-red-100 border border-red-800 rounded-lg p-3.5 text-xs space-y-1.5"
+              >
+                <div className="flex items-center justify-between font-mono text-[11px] text-red-300">
+                  <span className="inline-flex items-center gap-1 font-semibold">
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    {iamResult.authResponse.errorCode}
+                  </span>
+                  <span>{iamResult.authResponse.auditTraceId}</span>
+                </div>
+                <p className="leading-relaxed text-red-100">{iamResult.authResponse.message}</p>
+              </div>
+            )}
+
+            <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsIamLoginOpen(false);
+                  setIsWebConsoleOpen(true);
+                }}
+                className="w-full py-2 px-3 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Открыть демонстрационный стенд Веб-консоли S3 (Read-Only) →
+              </button>
+              <p className="text-[11px] text-slate-500 text-center">
+                Доступ к промышленным бакетам предоставляется на основании корпоративного договора MSA/SLA.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Interactive S3 / Web Vault Console Modal */}
       {isWebConsoleOpen && (
         <div
@@ -522,7 +719,9 @@ export default function App() {
               <div>
                 <div className="flex items-center gap-2 text-xs font-mono text-blue-400">
                   <FolderLock className="w-4 h-4" />
-                  <span>ТЕНАНТ: vlt_ch_zrh_helvetia_9042 · s3.ch-zrh-1.sync-vault-cloud.online</span>
+                  <span>
+                    ДЕМО-СТЕНД ТЕНАНТА: vlt_ru_mow_1c_erp_9042 · portal.sync-vault-cloud.online → s3.ch-zrh-1
+                  </span>
                 </div>
                 <h2 id="web-console-modal-title" className="text-lg font-display font-bold text-white mt-1">
                   Веб-консоль управления объектами S3 и снапшотами FastCDC
@@ -571,9 +770,12 @@ export default function App() {
                 </div>
 
                 <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5 text-xs font-mono space-y-1.5">
-                  <div className="text-slate-400 font-sans font-semibold">Реквизиты S3 / QUIC шлюза</div>
+                  <div className="text-slate-400 font-sans font-semibold">Реквизиты S3 / TLS 1.3 шлюза</div>
                   <div className="text-[11px] text-slate-300 break-all">
-                    Endpoint: https://s3.{activeConsoleBucket.region}.sync-vault-cloud.online
+                    Ingest РФ: https://portal.sync-vault-cloud.online
+                  </div>
+                  <div className="text-[11px] text-slate-300 break-all">
+                    Storage ЕС: https://s3.ch-zrh-1.sync-vault-cloud.online
                   </div>
                   <div className="text-[11px] text-slate-300">
                     AccessKey: sv_ak_live_{activeConsoleBucket.region.slice(0, 2)}_8841
@@ -585,7 +787,7 @@ export default function App() {
                     type="button"
                     onClick={() =>
                       setCopiedCredentialNotice(
-                        `Конфигурация rclone / aws-cli для бакета ${activeConsoleBucket.name} скопирована в буфер.`
+                        `Конфигурация wal-g / rclone для бакета ${activeConsoleBucket.name} скопирована в буфер.`
                       )
                     }
                     className="mt-2 w-full py-1.5 px-2.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-sans font-medium cursor-pointer"
@@ -640,7 +842,7 @@ export default function App() {
                 >
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
                     <Terminal className="w-4 h-4 text-blue-400" />
-                    <span>Запись нового зашифрованного снапшота в бакет {activeConsoleBucket.name}</span>
+                    <span>Тестовая запись зашифрованного снапшота в бакет {activeConsoleBucket.name}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                     <div className="sm:col-span-7">
@@ -749,7 +951,7 @@ export default function App() {
                     type="email"
                     value={modalEmail}
                     onChange={(e) => setModalEmail(e.target.value)}
-                    placeholder="infra@organization.ch"
+                    placeholder="infra@organization.ru"
                     className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                   />
                   {modalErrors.workEmail && (
@@ -767,7 +969,7 @@ export default function App() {
                       type="text"
                       value={modalCompany}
                       onChange={(e) => setModalCompany(e.target.value)}
-                      placeholder="Aethelgard Systems AG"
+                      placeholder="ООО «ИнфраТех Системс»"
                       className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                     />
                     {modalErrors.company && (
@@ -796,7 +998,7 @@ export default function App() {
 
                 <div>
                   <label htmlFor="modal-region" className="block text-xs font-medium text-slate-700 mb-1">
-                    Основной суверенный регион хранения
+                    Основной узел приёма и хранения
                   </label>
                   <select
                     id="modal-region"
@@ -806,7 +1008,7 @@ export default function App() {
                   >
                     {STORAGE_REGIONS.map((r) => (
                       <option key={r.code} value={r.code}>
-                        {r.code} — {r.city}, {r.country} ({r.erasureDefault})
+                        {r.code} — {r.city} ({r.s3Endpoint})
                       </option>
                     ))}
                   </select>
@@ -832,10 +1034,10 @@ export default function App() {
               <div className="mt-5 space-y-4">
                 <div className="bg-slate-900 text-slate-100 rounded-lg p-4 font-mono text-xs space-y-2 border border-slate-800">
                   <div className="text-emerald-400 font-semibold">
-                    ПРОСТРАНСТВО РАЗВЁРНУТО В РЕГИОНЕ {modalRegion.toUpperCase()}
+                    ПРОСТРАНСТВО РАЗВЁРНУТО В УЗЛЕ {modalRegion.toUpperCase()}
                   </div>
                   <div>Vault ID: {modalProvisionedVault.vaultId}</div>
-                  <div>Узел подключения: {modalProvisionedVault.endpoint}</div>
+                  <div>Точка подключения S3: {modalProvisionedVault.endpoint}</div>
                   <div>Ключ доступа S3: {modalProvisionedVault.accessKeyId}</div>
                   <div>Квота: {modalTb} ТБ (12+4 Reed-Solomon · Безлимитный трафик)</div>
                 </div>

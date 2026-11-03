@@ -9,7 +9,13 @@ import {
   Server,
   Shield,
 } from 'lucide-react';
-import { PageId, STORAGE_REGIONS } from '../data/siteCatalog';
+import {
+  INFRASTRUCTURE_STATUS_NODES,
+  MAINTENANCE_LOG_ENTRIES,
+  PageId,
+  STORAGE_REGIONS,
+  WORKLOAD_INTEGRATIONS,
+} from '../data/siteCatalog';
 import {
   BillingCycle,
   RedundancyTier,
@@ -23,18 +29,24 @@ interface PageNavigationProps {
   onNavigate: (page: PageId) => void;
   onOpenProvisionModal: (presetTb?: number) => void;
   onOpenWebConsole?: () => void;
+  onOpenIamLogin?: () => void;
 }
 
 export const HomePage: React.FC<PageNavigationProps> = ({
   onNavigate,
   onOpenProvisionModal,
   onOpenWebConsole,
+  onOpenIamLogin,
 }) => {
   const [activeChunkIndex, setActiveChunkIndex] = useState(1);
+  const [activeWorkloadId, setActiveWorkloadId] = useState<string>(WORKLOAD_INTEGRATIONS[0].id);
   const [samplePayload, setSamplePayload] = useState(
     'SELECT cohort_id, genomic_variant_hash, zstd_frame FROM clinical_vault_2026 WHERE region = "ch-zrh-1" AND verified = true;'
   );
   const [copiedManifest, setCopiedManifest] = useState(false);
+
+  const selectedWorkload =
+    WORKLOAD_INTEGRATIONS.find((w) => w.id === activeWorkloadId) || WORKLOAD_INTEGRATIONS[0];
 
   const computeDeterministicHex = (input: string, seed: number): string => {
     let h1 = 0xdeadbeef ^ seed;
@@ -72,56 +84,60 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <div className="lg:col-span-6 flex flex-col justify-between bg-white border border-slate-200/90 rounded-xl p-8 lg:p-10 shadow-xs">
             <div>
               <div className="text-xs font-medium text-slate-500 mb-4">
-                <span>Швейцарская юрисдикция (FADP)</span>
+                <span>Бэкап 1С:Предприятие и PostgreSQL</span>
                 <span aria-hidden="true" className="mx-2">·</span>
-                <span>Шифрование XChaCha20</span>
+                <span>Proxmox и Veeam S3</span>
                 <span aria-hidden="true" className="mx-2">·</span>
-                <span>Совместимость с S3 и POSIX FUSE</span>
+                <span>Георепликация TLS 1.3</span>
               </div>
               <h1
                 className="font-display font-bold text-slate-900 tracking-tight leading-[1.12]"
-                style={{ fontSize: 'clamp(2.1rem, 3.3vw, 3.1rem)', textWrap: 'balance' }}
+                style={{ fontSize: 'clamp(2.05rem, 3.2vw, 3.0rem)', textWrap: 'balance' }}
               >
-                Облачное блочное хранилище и защищённая дельта-синхронизация.
+                Корпоративное S3-хранилище и георепликация резервных копий.
               </h1>
               <p className="mt-5 text-base text-slate-600 leading-relaxed max-w-xl">
                 Инфраструктура <span className="font-mono text-slate-900 font-medium">sync-vault-cloud.online</span>{' '}
-                предоставляет отказоустойчивые объектные бакеты S3 и высокоскоростную репликацию блочных томов по
-                протоколу HTTP/3 QUIC с шифрованием на стороне клиента и нулевой платой за исходящий трафик.
+                обеспечивает непрерывный приём зашифрованных архивов 1С, дампов PostgreSQL и снапшотов виртуальных
+                машин через локальный шлюз{' '}
+                <span className="font-mono text-slate-900">portal.sync-vault-cloud.online</span> с синхронной
+                репликацией в отказоустойчивые кольца хранения Reed-Solomon.
               </p>
             </div>
 
             <div className="mt-8 pt-6 border-t border-slate-100">
               <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => onOpenProvisionModal(25)}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  <span>Создать бакет хранилища</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {onOpenIamLogin && (
+                  <button
+                    type="button"
+                    onClick={onOpenIamLogin}
+                    className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <span>Войти в консоль IAM</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
                 {onOpenWebConsole && (
                   <button
                     type="button"
                     onClick={onOpenWebConsole}
                     className="px-4 py-2.5 text-sm font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                   >
-                    Открыть веб-консоль S3
+                    Демо-стенд S3 (Read-Only)
                   </button>
                 )}
                 <button
                   type="button"
-                  onClick={() => onNavigate('documentation')}
+                  onClick={() => onOpenProvisionModal(25)}
                   className="px-3 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 >
-                  Документация CLI →
+                  Запросить квоту ТБ →
                 </button>
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs font-mono text-slate-500">
-                <span>S3: s3.ch-zrh-1.sync-vault-cloud.online</span>
-                <span>AS214908 (SyncVault-CH)</span>
+                <span>Шлюз РФ: portal.sync-vault-cloud.online</span>
+                <span>Узел ЕС: s3.ch-zrh-1.sync-vault-cloud.online</span>
                 <span>SLA 99.99%</span>
               </div>
             </div>
@@ -142,28 +158,89 @@ export const HomePage: React.FC<PageNavigationProps> = ({
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
               4.3 ГБ/с
             </p>
-            <p className="text-xs text-slate-500 mt-1">Аппаратное ускорение AVX-512 и Apple Neon</p>
+            <p className="text-xs text-slate-500 mt-1">Аппаратное ускорение AVX-512 и Zstandard</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Расчётная надёжность хранения объектов</p>
+            <p className="text-xs text-slate-500">Расчётная надёжность хранения архивов</p>
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
               99.999999999%
             </p>
             <p className="text-xs text-slate-500 mt-1">Избыточность 12+4 Reed-Solomon в 4 зонах ЦОД</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs text-slate-500">Задержка чтения блока (p99 TTFB)</p>
+            <p className="text-xs text-slate-500">Отклик транзитного шлюза (RU-MOW-1)</p>
             <p className="text-2xl font-display font-bold text-slate-900 mt-1 font-mono tabular-nums">
-              6.4 мс
+              3.2 мс
             </p>
-            <p className="text-xs text-slate-500 mt-1">Прямой пиринг SwissIX / DE-CIX 400GbE</p>
+            <p className="text-xs text-slate-500 mt-1">Прямой пиринг MSK-IX + магистраль TLS 1.3</p>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-5">
             <p className="text-xs text-slate-500">Тарификация исходящего трафика и запросов</p>
             <p className="text-2xl font-display font-bold text-blue-700 mt-1 font-mono tabular-nums">
               $0.00 / ТБ
             </p>
-            <p className="text-xs text-slate-500 mt-1">Полный Zero Egress для S3, Rclone и Veeam</p>
+            <p className="text-xs text-slate-500 mt-1">Полный Zero Egress для 1С, wal-g, PBS и Veeam</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Enterprise B2B Workload Scenarios: 1C, PostgreSQL, Proxmox, Veeam, Kubernetes */}
+      <section className="bg-white border border-slate-200 rounded-xl p-7 lg:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-100 pb-5">
+          <div>
+            <p className="text-xs font-medium text-blue-700">Промышленные сценарии эксплуатации</p>
+            <h2 className="text-2xl font-display font-bold text-slate-900 mt-1">
+              Штатная интеграция с корпоративными СУБД, гипервизорами и системами бэкапа
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-lg">
+            {WORKLOAD_INTEGRATIONS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveWorkloadId(item.id)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                  activeWorkloadId === item.id
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {item.title.split(' и ')[0]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6 items-center">
+          <div className="lg:col-span-6 space-y-3">
+            <div className="text-xs font-mono text-blue-700 font-semibold">
+              {selectedWorkload.protocolBadge}
+            </div>
+            <h3 className="text-xl font-display font-bold text-slate-900">
+              {selectedWorkload.title}
+            </h3>
+            <p className="text-xs font-medium text-slate-500">{selectedWorkload.subtitle}</p>
+            <p className="text-sm text-slate-600 leading-relaxed">{selectedWorkload.description}</p>
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-700">
+              <span>Показатель: {selectedWorkload.typicalThroughput}</span>
+              <button
+                type="button"
+                onClick={() => onNavigate('documentation')}
+                className="font-sans font-semibold text-blue-700 hover:text-blue-800 cursor-pointer"
+              >
+                Полная инструкция по настройке →
+              </button>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 bg-slate-950 text-slate-100 rounded-xl p-5 border border-slate-800 font-mono text-xs space-y-2">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+              <span>Рабочий профиль подключения (Production)</span>
+              <span className="text-emerald-400">TLS 1.3 · ALPN h2</span>
+            </div>
+            <pre className="text-slate-200 overflow-x-auto leading-relaxed pt-1">
+              <code>{selectedWorkload.configSnippet}</code>
+            </pre>
           </div>
         </div>
       </section>
@@ -172,9 +249,9 @@ export const HomePage: React.FC<PageNavigationProps> = ({
       <section className="bg-white border border-slate-200 rounded-xl p-7">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <p className="text-xs font-medium text-blue-700">Магистральные шлюзы доступа</p>
+            <p className="text-xs font-medium text-blue-700">Магистральные шлюзы и репликация</p>
             <h2 className="text-xl font-display font-bold text-slate-900 mt-0.5">
-              Промышленные точки подключения S3 API и QUIC-синхронизации
+              Точки приёма бэкапов (Ingest Gateways) и распределённые кластеры хранения
             </h2>
           </div>
           <button
@@ -182,7 +259,7 @@ export const HomePage: React.FC<PageNavigationProps> = ({
             onClick={() => onNavigate('regions')}
             className="text-xs font-semibold text-blue-700 hover:text-blue-800 whitespace-nowrap shrink-0 cursor-pointer"
           >
-            Все 6 дата-центров и пиринг →
+            Все 7 узлов сети и пиринг →
           </button>
         </div>
 
@@ -190,27 +267,96 @@ export const HomePage: React.FC<PageNavigationProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 text-slate-500">
-                <th className="py-2.5 pr-4 font-semibold">Кластер</th>
+                <th className="py-2.5 pr-4 font-semibold">Код узла</th>
                 <th className="py-2.5 px-4 font-semibold">Локация ЦОД</th>
-                <th className="py-2.5 px-4 font-semibold">Эндпоинт S3 / QUIC</th>
-                <th className="py-2.5 px-4 font-semibold">Схема хранения</th>
-                <th className="py-2.5 pl-4 font-semibold text-right">Средний RTT (Европа)</th>
+                <th className="py-2.5 px-4 font-semibold">Хост S3 / TLS 1.3</th>
+                <th className="py-2.5 px-4 font-semibold">Роль в контуре репликации</th>
+                <th className="py-2.5 pl-4 font-semibold text-right">Средний RTT</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-mono">
-              {STORAGE_REGIONS.slice(0, 4).map((r) => (
+              {STORAGE_REGIONS.slice(0, 5).map((r) => (
                 <tr key={r.code} className="hover:bg-slate-50">
                   <td className="py-3 pr-4 font-semibold text-blue-700">{r.code}</td>
                   <td className="py-3 px-4 font-sans font-medium text-slate-900">
                     {r.city}, {r.country}
                   </td>
-                  <td className="py-3 px-4 text-slate-700">{r.s3Endpoint}</td>
+                  <td className="py-3 px-4 text-slate-800 font-semibold">{r.s3Endpoint}</td>
                   <td className="py-3 px-4 font-sans text-slate-600">{r.erasureDefault}</td>
                   <td className="py-3 pl-4 text-right tabular-nums text-slate-900">{r.latencyEuMs} мс</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* 90-Day SLA Uptime & Planned Maintenance Log */}
+      <section className="bg-white border border-slate-200 rounded-xl p-7 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <p className="text-xs font-medium text-emerald-700">Мониторинг дежурной смены NOC (24/7)</p>
+            <h2 className="text-xl font-display font-bold text-slate-900 mt-0.5">
+              Статус работы узлов и выполнение SLA 99.99% за последние 90 суток
+            </h2>
+          </div>
+          <div className="text-xs font-mono text-slate-600 tabular-nums">
+            Активных аварий: 0 · Магистраль RU-MOW-1 ↔ CH-ZRH-1: В норме
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {INFRASTRUCTURE_STATUS_NODES.map((node) => (
+            <div key={node.id} className="border border-slate-200 rounded-lg p-4 bg-slate-50/60">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold text-slate-900">{node.name}</span>
+                <span className="text-xs font-mono font-semibold text-emerald-700 tabular-nums">
+                  SLA {node.uptime90d}
+                </span>
+              </div>
+              <div className="text-xs font-mono text-blue-700 mt-1">{node.endpoint}</div>
+              <div className="text-xs text-slate-600 mt-1">{node.role}</div>
+              {/* 30-segment visual 90-day uptime bar */}
+              <div className="grid grid-cols-30 gap-0.5 mt-3" aria-hidden="true">
+                {Array.from({ length: 30 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-2 rounded-xs ${
+                      idx === 14 && node.id === 'node-ru-mow' ? 'bg-blue-500' : 'bg-emerald-500'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 mt-2 tabular-nums">
+                <span>{node.statusText}</span>
+                <span>Задержка: {node.currentLatency}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-slate-100 pt-4">
+          <p className="text-xs font-semibold text-slate-900 mb-3">
+            Журнал плановых технических работ на магистрали и узлах хранения
+          </p>
+          <div className="space-y-2.5">
+            {MAINTENANCE_LOG_ENTRIES.map((log, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs bg-slate-50 border border-slate-200/80 rounded-lg px-4 py-2.5"
+              >
+                <div>
+                  <span className="font-mono text-slate-500">{log.date}</span>
+                  <span aria-hidden="true" className="mx-2 text-slate-300">|</span>
+                  <span className="font-mono font-semibold text-slate-800">{log.node}</span>
+                  <p className="text-slate-900 font-medium mt-0.5">{log.title}</p>
+                </div>
+                <div className="text-[11px] font-mono text-emerald-700 sm:text-right shrink-0">
+                  {log.result}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

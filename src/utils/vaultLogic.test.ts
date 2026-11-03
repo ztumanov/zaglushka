@@ -7,7 +7,31 @@ import {
   calculateSlaCredit,
   validateTrialRequest,
   verifyChecksumMatch,
+  validateIamLoginAttempt,
 } from './vaultLogic';
+
+test('validateIamLoginAttempt validates fields and returns IAM-403-TENANT for unregistered credentials', () => {
+  const bad = validateIamLoginAttempt({
+    tenantOrEmail: 'a',
+    password: '123',
+    totpCode: 'abc',
+    clusterRegion: 'ru-mow-1',
+  });
+  assert.equal(bad.validInput, false);
+  assert.ok(bad.fieldErrors.tenantOrEmail);
+  assert.ok(bad.fieldErrors.password);
+  assert.ok(bad.fieldErrors.totpCode);
+
+  const denied = validateIamLoginAttempt({
+    tenantOrEmail: 'admin@corp-infra.ru',
+    password: 'superSecretPassword123',
+    totpCode: '482910',
+    clusterRegion: 'ru-mow-1',
+  });
+  assert.equal(denied.validInput, true);
+  assert.equal(denied.authResponse?.errorCode, 'IAM-403-TENANT');
+  assert.equal(denied.authResponse?.gatewayEndpoint, 'portal.sync-vault-cloud.online');
+});
 
 test('calculateStoragePricing computes monthly and annual discount accurately', () => {
   const monthly = calculateStoragePricing({

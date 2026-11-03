@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /v2/manifests/
+Disallow: /v2/chunks/
+Disallow: /iam/sso/
+Disallow: /s3-internal/
+
+Sitemap: https://sync-vault-cloud.online/sitemap.xml
+Host: https://sync-vault-cloud.online

@@ -247,3 +247,66 @@ export function computeToySha256Hex(seed: string): string {
   return `${part1}${part2}${part1}${part2}${part1}${part2}${part1}${part2}`.slice(0, 64);
 }
 
+export interface IamLoginAttemptInput {
+  tenantOrEmail: string;
+  password: string;
+  totpCode?: string;
+  clusterRegion: string;
+}
+
+export interface IamLoginAttemptResult {
+  validInput: boolean;
+  fieldErrors: {
+    tenantOrEmail?: string;
+    password?: string;
+    totpCode?: string;
+  };
+  authResponse?: {
+    errorCode: string;
+    auditTraceId: string;
+    message: string;
+    gatewayEndpoint: string;
+  };
+}
+
+export function validateIamLoginAttempt(input: IamLoginAttemptInput): IamLoginAttemptResult {
+  const fieldErrors: IamLoginAttemptResult['fieldErrors'] = {};
+  const cleanId = (input.tenantOrEmail || '').trim();
+  const cleanPass = input.password || '';
+  const cleanTotp = (input.totpCode || '').trim();
+
+  if (cleanId.length < 3) {
+    fieldErrors.tenantOrEmail = 'Укажите корпоративный Email или идентификатор тенанта (например, vlt_ch_zrh_...).';
+  }
+
+  if (cleanPass.length < 6) {
+    fieldErrors.password = 'Введите пароль учётной записи IAM (не менее 6 символов).';
+  }
+
+  if (cleanTotp.length > 0 && !/^\d{6}$/.test(cleanTotp)) {
+    fieldErrors.totpCode = 'Код двухфакторной аутентификации TOTP должен состоять из 6 цифр.';
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { validInput: false, fieldErrors };
+  }
+
+  const hash = computeToySha256Hex(`${cleanId}:${input.clusterRegion}`).slice(0, 10);
+  const gatewayEndpoint =
+    input.clusterRegion === 'ru-mow-1'
+      ? 'portal.sync-vault-cloud.online'
+      : `s3.${input.clusterRegion}.sync-vault-cloud.online`;
+
+  return {
+    validInput: true,
+    fieldErrors: {},
+    authResponse: {
+      errorCode: 'IAM-403-TENANT',
+      auditTraceId: `req_${input.clusterRegion.replace(/-/g, '_')}_${hash}`,
+      gatewayEndpoint,
+      message: `Доступ отклонён узлом ${gatewayEndpoint}: учётная запись «${cleanId}» не найдена в реестре активных корпоративных контрактов или не предъявлен аппаратный клиентский сертификат mTLS (Код: IAM-403-TENANT).`,
+    },
+  };
+}
+
+
